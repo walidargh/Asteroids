@@ -8,9 +8,9 @@ GameView.prototype.start = function () {
   var gv = this;
   setInterval( function () {
     gv.game.draw(gv.ctx);
-    gv.game.moveObjects();
+    gv.game.step();
 
-  }, 20);
+  }, 100);
 };
 
 

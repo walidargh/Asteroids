@@ -66,7 +66,7 @@
 
 	  attr.vel = Util.randomVec(Math.random()*40);
 	  attr.color = attr.color || "red";
-	  attr.radius = attr.radius || 10;
+	  attr.radius = attr.radius || 30;
 
 	  MovingObject.call(this, attr );
 	};
@@ -85,6 +85,7 @@
 	  this.vel = attributes.vel;
 	  this.radius = attributes.radius;
 	  this.color = attributes.color;
+	  this.game = attributes.game;
 	}
 
 	MovingObject.prototype.draw = function(ctx) {
@@ -105,6 +106,14 @@
 
 	MovingObject.prototype.move = function () {
 	  this.pos = [this.pos[0] + this.vel[0], this.pos[1] + this.vel[1]];
+	  this.pos = this.game.wrap(this.pos);
+	};
+
+	MovingObject.prototype.isCollidedWith = function (otherObject) {
+	  var xSquared = Math.pow(this.pos[0] - otherObject.pos[0], 2);
+	  var ySquared = Math.pow(this.pos[1] - otherObject.pos[1], 2);
+	  var distance = Math.sqrt(xSquared + ySquared);
+	  return distance < (this.radius + otherObject.radius);
 	};
 
 	module.exports = MovingObject;
@@ -141,7 +150,7 @@
 	function Game () {
 	  this.DIM_X = 2000;
 	  this.DIM_Y = 1000;
-	  this.NUM_ASTEROIDS = 100;
+	  this.NUM_ASTEROIDS = 5;
 	  this.asteroids = [];
 	  this.addAsteroids();
 	}
@@ -149,7 +158,7 @@
 	Game.prototype.addAsteroids = function () {
 	  for(var i = 0; i < this.NUM_ASTEROIDS; i++) {
 	    this.asteroids.push(
-	      new Asteroid ({pos: this.randomPosition()})
+	      new Asteroid ({pos: this.randomPosition(), game: this})
 	    );
 	  }
 	};
@@ -173,6 +182,28 @@
 	  });
 	};
 
+	Game.prototype.wrap = function(pos) {
+	  return [pos[0] % this.DIM_X, pos[1] % this.DIM_Y];
+	};
+
+	Game.prototype.checkCollision = function () {
+	  for(var i = 0; i < this.asteroids.length; i++) {
+	    for (var j = 0; j < this.asteroids.length; j++) {
+	      if ((i !== j)  &&
+	      this.asteroids[i].isCollidedWith(this.asteroids[j])) {
+	            this.asteroids[i].color = "blue";
+	            this.asteroids[j].color = "yellow";
+	            // alert("COLLISION");
+	      }
+	    }
+	  }
+	};
+
+	Game.prototype.step = function () {
+	  this.moveObjects();
+	  this.checkCollision();
+	};
+
 	module.exports = Game;
 
 
@@ -190,9 +221,9 @@
 	  var gv = this;
 	  setInterval( function () {
 	    gv.game.draw(gv.ctx);
-	    gv.game.moveObjects();
+	    gv.game.step();
 
-	  }, 20);
+	  }, 100);
 	};
 
 
