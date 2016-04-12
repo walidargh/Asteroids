@@ -31,7 +31,13 @@ MovingObject.prototype.isCollidedWith = function (otherObject) {
   var xSquared = Math.pow(this.pos[0] - otherObject.pos[0], 2);
   var ySquared = Math.pow(this.pos[1] - otherObject.pos[1], 2);
   var distance = Math.sqrt(xSquared + ySquared);
-  return distance < (this.radius + otherObject.radius);
+  if (distance < (this.radius + otherObject.radius)) {
+    this.game.remove(this, otherObject);
+    return true;
+  }
+  else {
+    return false;
+  }
 };
 
 module.exports = MovingObject;

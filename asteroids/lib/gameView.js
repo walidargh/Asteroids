@@ -10,7 +10,7 @@ GameView.prototype.start = function () {
     gv.game.draw(gv.ctx);
     gv.game.step();
 
-  }, 100);
+  }, 50);
 };
 
 
